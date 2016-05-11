@@ -1,0 +1,10 @@
+{
+  "name": "validation-code-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "xueping.yang@gmail.com",
+  "dependencies": {
+    "koa": "^1.2.0"
+  }
+}
