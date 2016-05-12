@@ -1,11 +1,5 @@
 var sms = require('./sms');
 
-exports.request = function* (type, phone) {
-  // TODO
-  var context = this;
-  context.body = 'YES';
-}
-
 exports.sendSMS = function* () {
   var context = this;
   yield new Promise((resolve, reject) => {
@@ -19,4 +13,12 @@ exports.sendSMS = function* () {
       resolve();
     });
   });
+}
+
+exports.request = function* (type, phone) {
+  this.body = '';
+}
+
+exports.verify = function* (type, phone, code) {
+  this.body = '';
 }
