@@ -1,9 +1,17 @@
 var _ = require('lodash')
   , koa = require('koa')
+  , parse = require('co-body')
   , config = require('./config')
   , route = require('./route');
 
 var app = koa();
+
+app.use(function* (next) {
+  if (this.method === 'POST' || this.method === 'PUT') {
+    this.request.body = yield parse(this);
+  }
+  yield next;
+});
 
 app.use(function* (next) {
   this.type = 'application/json; charset=utf-8';
@@ -22,6 +30,7 @@ app.use(function* (next) {
     this.body = JSON.stringify({msg: 'appid错误'});
     return;
   }
+  this.app = app;
   yield next;
 });
 

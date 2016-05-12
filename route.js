@@ -3,4 +3,5 @@ var route = require('koa-route')
 
 module.exports = function(app) {
   app.use(route.post('/request/:type/:phone', service.request));
+  app.use(route.post('/sms', service.sendSMS));
 };
