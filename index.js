@@ -1,17 +1,12 @@
 var _ = require('lodash')
   , koa = require('koa')
-  , parse = require('co-body')
+  , bodyParser = require('koa-bodyparser')
   , config = require('./config')
   , route = require('./route');
 
 var app = koa();
 
-app.use(function* (next) {
-  if (this.method === 'POST' || this.method === 'PUT') {
-    this.request.body = yield parse(this);
-  }
-  yield next;
-});
+app.use(bodyParser());
 
 app.use(function* (next) {
   this.type = 'application/json; charset=utf-8';

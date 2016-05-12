@@ -4,7 +4,7 @@ exports.send = function(phone, message, callback) {
   request.post({
     url: 'https://sms.yunpian.com/v1/sms/send.json',
     form: {
-      apikey: 'fd96940952f8b953843b94d89df30f56',
+      apikey: 'apikey',
       mobile: phone,
       text: message
     }
