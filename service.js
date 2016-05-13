@@ -86,15 +86,19 @@ exports.verify = function* (type, phone, code) {
       if (!result) {
         context.status = 422;
         context.body = {message: '验证码不存在'};
+        resolve();
       } else {
         if(result !== code) {
           context.status = 422;
           context.body = {message: '验证码错误'};
+          resolve();
         } else {
-          context.body = '';
+          client.del(redisKey, () => {
+            context.body = '';
+            resolve();
+          });
         }
       }
-      resolve();
     });
   });
 }
