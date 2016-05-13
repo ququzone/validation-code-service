@@ -6,6 +6,7 @@ module.exports = {
   },
   apps: [{
     id: 'demo',
-    expires: 1800
+    expire: 1800,
+    tpl: 'Your validation code #code#'
   }]
 }

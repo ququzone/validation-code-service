@@ -9,11 +9,6 @@ var app = koa();
 app.use(bodyParser());
 
 app.use(function* (next) {
-  this.type = 'application/json; charset=utf-8';
-  yield next;
-});
-
-app.use(function* (next) {
   if (!this.headers.appid) {
     this.status = 422;
     this.body = {message: '请求头部缺少: appid'};
