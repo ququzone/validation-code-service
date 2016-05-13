@@ -64,5 +64,37 @@ exports.request = function* (type, phone) {
 }
 
 exports.verify = function* (type, phone, code) {
-  this.body = '';
+  var context = this;
+  yield new Promise((resolve, reject) => {
+    // TODO
+    var client = redis.createClient({
+      host: config.redis.host,
+      port: config.redis.port
+    });
+    client.on('error', (err) => {
+      context.status = 500;
+      context.body = {message: 'request redis error'};
+      resolve();
+    });
+    var redisKey = config.redis.prefix + context.app.id + ':' + type + ':' + phone;
+    client.get(redisKey, (err, result) => {
+      if (err) {
+        context.status = 500;
+        context.body = {message: 'redis get error'};
+        return resolve();
+      }
+      if (!result) {
+        context.status = 422;
+        context.body = {message: '验证码不存在'};
+      } else {
+        if(result !== code) {
+          context.status = 422;
+          context.body = {message: '验证码错误'};
+        } else {
+          context.body = '';
+        }
+      }
+      resolve();
+    });
+  });
 }
