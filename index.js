@@ -16,13 +16,13 @@ app.use(function* (next) {
 app.use(function* (next) {
   if (!this.headers.appid) {
     this.status = 422;
-    this.body = JSON.stringify({msg: '请求头部缺少: appid'});
+    this.body = {message: '请求头部缺少: appid'};
     return;
   }
   var app = _.find(config.apps, ['id', this.headers.appid]);
   if (!app) {
     this.status = 422;
-    this.body = JSON.stringify({msg: 'appid错误'});
+    this.body = {message: 'appid错误'};
     return;
   }
   this.app = app;

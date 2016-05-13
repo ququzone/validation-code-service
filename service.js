@@ -6,7 +6,7 @@ exports.sendSMS = function* () {
     sms.send(context.request.body.phone, context.request.body.message, function(err) {
       if (err) {
         context.status = err.status;
-        context.body = err.message;
+        context.body = {message: err.message};
       } else {
         context.body = '';
       }
