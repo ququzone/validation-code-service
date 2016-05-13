@@ -1,6 +1,6 @@
 module.exports = {
   redis: {
-    host: 'vcs.host.name',
+    host: 'vcs.redis.host',
     port: 6379,
     prefix: 'vcs:'
   },
