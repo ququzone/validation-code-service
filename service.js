@@ -42,7 +42,7 @@ exports.request = function* (type, phone) {
       }
       client.multi()
         .set(redisKey, code)
-        .expire(redisKey, context.state.app.expire)
+        .expire(redisKey, context.state.app.expires)
         .exec((err) => {
           if (err) {
             context.status = 500;
