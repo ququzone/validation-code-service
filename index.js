@@ -9,6 +9,15 @@ var app = koa();
 app.use(bodyParser());
 
 app.use(function* (next) {
+  var ctx = this;
+  this.error = (err, status) => {
+    ctx.status = status || 500;
+    ctx.body = err;
+  };
+  yield next;
+});
+
+app.use(function* (next) {
   if (!this.headers.appid) {
     this.status = 422;
     this.body = {message: '请求头部缺少: appid'};

@@ -4,14 +4,13 @@ var redis = require('redis')
   , sms = require('./sms');
 
 exports.sendSMS = function* () {
-  var context = this;
+  var ctx = this;
   yield new Promise((resolve, reject) => {
-    sms.send(context.request.body.phone, context.request.body.message, function(err) {
+    sms.send(ctx.request.body.phone, ctx.request.body.message, function(err) {
       if (err) {
-        context.status = err.status;
-        context.body = {message: err.message};
+        ctx.error({message: err.message}, err.status);
       } else {
-        context.body = '';
+        ctx.body = '';
       }
       resolve();
     });
@@ -19,22 +18,20 @@ exports.sendSMS = function* () {
 }
 
 exports.request = function* (type, phone) {
-  var context = this;
+  var ctx = this;
   yield new Promise((resolve, reject) => {
     var client = redis.createClient({
       host: config.redis.host,
       port: config.redis.port
     });
     client.on('error', (err) => {
-      context.status = 500;
-      context.body = {message: 'request redis error'};
+      ctx.error({message: 'request redis error'});
       resolve();
     });
-    var redisKey = config.redis.prefix + context.state.app.id + ':' + type + ':' + phone;
+    var redisKey = config.redis.prefix + ctx.state.app.id + ':' + type + ':' + phone;
     client.get(redisKey, (err, code) => {
       if (err) {
-        context.status = 500;
-        context.body = {message: 'redis get error'};
+        ctx.error({message: 'redis get error'});
         return resolve();
       }
       if (!code) {
@@ -42,19 +39,17 @@ exports.request = function* (type, phone) {
       }
       client.multi()
         .set(redisKey, code)
-        .expire(redisKey, context.state.app.expires)
+        .expire(redisKey, ctx.state.app.expires)
         .exec((err) => {
           if (err) {
-            context.status = 500;
-            context.body = {message: 'redis set error'};
+            ctx.error({message: 'redis set error'});
             return resolve();
           }
-          sms.send(phone, _.replace(context.state.app.tpl, '#code#', code), function(err) {
+          sms.send(phone, _.replace(ctx.state.app.tpl, '#code#', code), function(err) {
             if (err) {
-              context.status = err.status;
-              context.body = {message: err.message};
+              ctx.error({message: err.message}, err.status);
             } else {
-              context.body = '';
+              ctx.body = '';
             }
             resolve();
           });
@@ -64,37 +59,32 @@ exports.request = function* (type, phone) {
 }
 
 exports.verify = function* (type, phone, code) {
-  var context = this;
+  var ctx = this;
   yield new Promise((resolve, reject) => {
-    // TODO
     var client = redis.createClient({
       host: config.redis.host,
       port: config.redis.port
     });
     client.on('error', (err) => {
-      context.status = 500;
-      context.body = {message: 'request redis error'};
+      ctx.error({message: 'request redis error'});
       resolve();
     });
-    var redisKey = config.redis.prefix + context.state.app.id + ':' + type + ':' + phone;
+    var redisKey = config.redis.prefix + ctx.state.app.id + ':' + type + ':' + phone;
     client.get(redisKey, (err, result) => {
       if (err) {
-        context.status = 500;
-        context.body = {message: 'redis get error'};
+        ctx.error({message: 'redis get error'});
         return resolve();
       }
       if (!result) {
-        context.status = 422;
-        context.body = {message: '验证码不存在'};
+        ctx.error({message: '验证码不存在'}, 422);
         resolve();
       } else {
         if(result !== code) {
-          context.status = 422;
-          context.body = {message: '验证码错误'};
+          ctx.error({message: '验证码错误'}, 422);
           resolve();
         } else {
           client.del(redisKey, () => {
-            context.body = '';
+            ctx.body = '';
             resolve();
           });
         }
