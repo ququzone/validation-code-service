@@ -20,7 +20,7 @@ app.use(function* (next) {
     this.body = {message: 'appid错误'};
     return;
   }
-  this.app = app;
+  this.state.app = app;
   yield next;
 });
 

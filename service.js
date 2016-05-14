@@ -30,7 +30,7 @@ exports.request = function* (type, phone) {
       context.body = {message: 'request redis error'};
       resolve();
     });
-    var redisKey = config.redis.prefix + context.app.id + ':' + type + ':' + phone;
+    var redisKey = config.redis.prefix + context.state.app.id + ':' + type + ':' + phone;
     client.get(redisKey, (err, code) => {
       if (err) {
         context.status = 500;
@@ -42,14 +42,14 @@ exports.request = function* (type, phone) {
       }
       client.multi()
         .set(redisKey, code)
-        .expire(redisKey, context.app.expire)
+        .expire(redisKey, context.state.app.expire)
         .exec((err) => {
           if (err) {
             context.status = 500;
             context.body = {message: 'redis set error'};
             return resolve();
           }
-          sms.send(phone, _.replace(context.app.tpl, '#code#', code), function(err) {
+          sms.send(phone, _.replace(context.state.app.tpl, '#code#', code), function(err) {
             if (err) {
               context.status = err.status;
               context.body = {message: err.message};
@@ -76,7 +76,7 @@ exports.verify = function* (type, phone, code) {
       context.body = {message: 'request redis error'};
       resolve();
     });
-    var redisKey = config.redis.prefix + context.app.id + ':' + type + ':' + phone;
+    var redisKey = config.redis.prefix + context.state.app.id + ':' + type + ':' + phone;
     client.get(redisKey, (err, result) => {
       if (err) {
         context.status = 500;
