@@ -32,6 +32,7 @@ exports.request = function* (type, phone) {
     client.get(redisKey, (err, code) => {
       if (err) {
         ctx.error({message: 'redis get error'});
+        client.quit();
         return resolve();
       }
       if (!code) {
@@ -43,6 +44,7 @@ exports.request = function* (type, phone) {
         .exec((err) => {
           if (err) {
             ctx.error({message: 'redis set error'});
+            client.quit();
             return resolve();
           }
           sms.send(phone, _.replace(ctx.state.app.tpl, '#code#', code), function(err) {
@@ -51,6 +53,7 @@ exports.request = function* (type, phone) {
             } else {
               ctx.body = '';
             }
+            client.quit();
             resolve();
           });
         });
@@ -73,18 +76,22 @@ exports.verify = function* (type, phone, code) {
     client.get(redisKey, (err, result) => {
       if (err) {
         ctx.error({message: 'redis get error'});
+        client.quit();
         return resolve();
       }
       if (!result) {
         ctx.error({message: '验证码不存在'}, 422);
+        client.quit();
         resolve();
       } else {
         if(result !== code) {
           ctx.error({message: '验证码错误'}, 422);
+          client.quit();
           resolve();
         } else {
           client.del(redisKey, () => {
             ctx.body = '';
+            client.quit();
             resolve();
           });
         }
