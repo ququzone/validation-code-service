@@ -1,5 +1,9 @@
 FROM redis:3.2
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		curl \
+	&& rm -rf /var/lib/apt/lists/*
+
 ENV NPM_CONFIG_LOGLEVEL info
 ENV NODE_VERSION 4.4.4
 
