@@ -23,5 +23,6 @@ $ curl -i -XPOST -H 'appid:demo' http://localhost:3000/verify/reg/13900000000/11
 
 ```
 $ docker build -t ququzone/validation-code-service .
-$ docker run -it -p 3000:3000 --add-host="vcs.redis.host:127.0.0.1" ququzone/validation-code-service
+$ docker run --name redis -d redis
+$ docker run -d -p 3000:3000 --link redis:vcs.redis.host ququzone/validation-code-service
 ```
